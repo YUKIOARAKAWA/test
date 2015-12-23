@@ -1,0 +1,12 @@
+Sub Sample()
+    Dim Rng  As Range
+    
+    Set Rng = Range("B8:E18")         '--サイズを合わせるセル範囲
+    
+    With ActiveSheet.ChartObjects(1)  '--1つめのグラフに関して
+        .Top = Rng.Top                '--上端を合わせる
+        .Left = Rng.Left              '--左端を合わせる
+        .Width = Rng.Width            '--幅を合わせる
+        .Height = Rng.Height          '--高さを合わせる
+    End With
+End Sub
