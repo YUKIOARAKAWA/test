@@ -1,0 +1,150 @@
+Sub 処理フロー自動生成()
+
+'
+' Macro4 Macro
+'
+
+'
+Dim hyodai() As String
+ReDim hyodai(20)
+Dim j As Integer
+j = 0
+Dim hyodaipoint() As Integer
+ReDim hyodaipoint(20)
+
+
+
+Dim syorirozikkupoint As Integer
+Dim syuturyokutipoint As Integer
+Dim syorihuropoint As Integer
+    
+    
+    '  「処理ロジック」の位置を取得　入力値がない設計書に処理ロジックの記述がない（今は無視）
+    For i = 1 To Cells(Rows.Count, 1).Row
+        If Cells(i, 1) = "処理ロジック" Then
+            syorirozikkupoint = i + 1
+            Exit For
+            
+        End If
+        
+    Next i
+    
+    '　Cells(40, 1) = syorirozikkupoint
+    
+    '  「出力値」の位置を取得
+    For i = 1 To Cells(Rows.Count, 1).Row
+        If Cells(i, 1) = "出力値" Then
+            syuturyokutipoint = i - 1
+            Exit For
+            
+        End If
+    
+    Next i
+    '　Cells(41, 1) = syuturyokutipoint
+    
+     
+    
+    
+    
+    '  表題をかき集める　hyodai
+    '  表題とともに各表題が何行目にあるかを取得する。　hyodaipoint
+    '  かき集める範囲は上で取得した「処理ロジック」～「出力値」の間
+    For i = syorirozikkupoint To syuturyokutipoint
+        If Cells(i, 2) <> "" Then
+        
+            hyodai(j) = Cells(i, 2).Value
+            hyodaipoint(j) = i
+            j = j + 1
+        End If
+    Next i
+    
+    
+    '  配列のサイズを最適化
+    ReDim Preserve hyodai(j - 1)
+    ReDim Preserve hyodaipoint(j - 1)
+    
+    '  テスト用の出力
+    For i = 0 To UBound(hyodai)
+        Cells(i + 34, 3) = hyodai(i)
+        Cells(i + 34, 4) = hyodaipoint(i)
+    Next i
+    
+    
+
+    
+    '　Cells(42, 1) = UBound(hyodai)
+    
+    
+    
+    '  「処理フロー」の位置を取得
+    '  取得した位置よりオートシェープの置く位置を割りだす。
+    For i = 1 To Cells(Rows.Count, 1).Row
+        If Cells(i, 1) = "処理フロー" Then
+            syorihuropoint = i + 2
+            Exit For
+            
+        End If
+    
+    Next i
+    
+    
+    Dim shapeiti As String
+    ' オートシェープの置く位置
+    shapeiti = "Y" & Format(syorihuropoint)
+        
+    
+    '　取得した表題の数だけ、オブジェクトを追加する。
+    For i = 0 To UBound(hyodai)
+    '  For i = 0 To 4
+            
+        ActiveSheet.Shapes.AddShape(msoShapeRectangle, Range(shapeiti).Left, Range(shapeiti).Top + 67.5 * i, 171, 37.5).Select
+        With Selection.ShapeRange.Fill
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(255, 255, 255)
+        End With
+        With Selection.ShapeRange.Line
+            .Visible = msoTrue
+            .Weight = 0.75
+        End With
+        With Selection.ShapeRange.Line
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(0, 0, 0)
+            .Transparency = 0
+        End With
+        
+        Selection.ShapeRange.TextFrame2.TextRange.Characters.Text = hyodai(i)
+        
+        
+        With Selection.ShapeRange.TextFrame2.TextRange.Font.Fill
+            .Visible = msoTrue
+            .ForeColor.RGB = RGB(0, 0, 0)
+            .Transparency = 0
+            .Solid
+        End With
+        
+        Selection.ShapeRange.TextFrame2.VerticalAnchor = msoAnchorMiddle
+        Selection.ShapeRange.TextFrame2.TextRange.ParagraphFormat.Alignment = msoAlignCenter
+        
+        
+        ' 矢印の追加
+        ' 最後のオブジェクト追加の時は矢印は不要
+        If i <> UBound(hyodai) Then
+            ActiveSheet.Shapes.AddConnector(msoConnectorStraight, 463.5, 456.5 + 67.5 * i, 463.5, 486.5 + 67.5 * i).Select
+            Selection.ShapeRange.Line.EndArrowheadStyle = msoArrowheadOpen
+            With Selection.ShapeRange.Line
+                .Visible = msoTrue
+                .Weight = 1.5
+            End With
+            With Selection.ShapeRange.Line
+                .Visible = msoTrue
+                .ForeColor.RGB = RGB(0, 0, 0)
+                .Transparency = 0
+            End With
+            
+        End If
+    
+    Next i
+    
+
+
+End Sub
